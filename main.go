@@ -1,10 +1,10 @@
 package main
 //import everything we used to test the compiler, interpreter, lexer, and parser
 import (
-    "internal/compiler"
-    "internal/interpreter"
-    "internal/lexer"
-    "internal/parser"
+    "github.com/gw-dev101/fractran_plus_plus/internal/compiler"
+    "github.com/gw-dev101/fractran_plus_plus/internal/interpreter"
+    "github.com/gw-dev101/fractran_plus_plus/internal/lexer"
+    "github.com/gw-dev101/fractran_plus_plus/internal/parser"
 )
 
 func main() {
