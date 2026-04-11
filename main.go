@@ -10,8 +10,48 @@ import (
 
 func main() {
 	//try to run some tests
-	compiler.TestCompile(nil)
-	interpreter.TestExecute(nil)
-	lexer.TestTokenize(nil)
-	parser.TestParse(nil)
+	sampleCode := `
+		# This is a sample FRACTRAN++ proram
+		# Its based on the PRIMEGAME example from the FRACTRAN wikipedia page
+		17/91
+		78/85
+		19/51
+		23/38
+		29/33
+		77/29
+		95/23
+		77/19
+		1/17
+		11/13
+		13/11
+		15/14
+		15/2
+		55/1
+	`
+	
+	l := lexer.New()
+	tokens, err := l.Tokenize(sampleCode)
+	if err != nil {
+		panic(err)
+	}
+	println("Tokens:", tokens)
+	p := parser.New()
+	program, err := p.Parse(tokens)
+	if err != nil {
+		panic(err)
+	}
+	println("Parsed Program:", program)
+	c := compiler.New()
+	compiledProgram, err := c.Compile(program)
+	if err != nil {
+		panic(err)
+	}
+	println("Compiled Program:", compiledProgram)
+	i := interpreter.New()
+	result, err := i.Execute(program)
+	if err != nil {
+		panic(err)
+	}
+	println("Execution Result:", result)
+	println("Program executed successfully")
 }
