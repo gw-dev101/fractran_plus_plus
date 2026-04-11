@@ -1,7 +1,7 @@
 package lexer
 
 import (
-    "fmt"
+	"fmt"
 )
 
 // ErrNotImplemented is returned by the stub lexer until tokenization exists.
@@ -16,9 +16,9 @@ type Token struct {
 }
 
 // Lexer tokenizes FRACTRAN++ source text.
-type Lexer struct{
+type Lexer struct {
 	input string
-	pos int
+	pos   int
 }
 
 func (l *Lexer) skipUntilSeparator() {
@@ -52,47 +52,49 @@ func New() *Lexer {
 }
 
 func (l *Lexer) Tokenize(input string) ([]Token, error) {
-    l.input = input
-    l.pos = 0
+	l.input = input
+	l.pos = 0
 
-    var tokens []Token
+	var tokens []Token
 
-    for l.pos < len(l.input) {
-        if isWhitespace(l.peek()) || l.peek() == ',' {
-            l.advance()
-            continue
-        }
+	for l.pos < len(l.input) {
+		ch := l.peek()
+		// Skip separators
+		if isWhitespace(ch) || ch == ',' {
+			l.advance()
+			continue
+		}
 
-        if isDigit(l.peek()) {
-            left := l.readInteger()
+		// Integer
+		if isDigit(ch) {
+			value := l.readInteger()
 
-            if l.peek() == '/' {
-                l.advance()
+			tokens = append(tokens, Token{
+				Kind:   "Integer",
+				Lexeme: value,
+				Line:   1,
+				Column: 1,
+			})
+			continue
+		}
 
-                if !isDigit(l.peek()) {
-                    return nil, fmt.Errorf("expected digit after '/'")
-                }
+		// Slash
+		if ch == '/' {
+			l.advance()
+			tokens = append(tokens, Token{
+				Kind:   "Slash",
+				Lexeme: "/",
+				Line:   1,
+				Column: 1,
+			})
+			continue
+		}
 
-                right := l.readInteger()
+		// Everything else is a comment and we decided to
+		l.skipUntilSeparator()
+	}
 
-                tokens = append(tokens, Token{
-                    Kind:   "Fraction",
-                    Lexeme: left + "/" + right,
-                })
-            } else {
-                tokens = append(tokens, Token{
-                    Kind:   "Integer",
-                    Lexeme: left,
-                })
-            }
-
-            continue
-        }
-
-        l.skipUntilSeparator()
-    }
-
-    return tokens, nil
+	return tokens, nil
 }
 
 func isDigit(r rune) bool {
