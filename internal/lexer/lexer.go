@@ -1,9 +1,5 @@
 package lexer
 
-import (
-	"fmt"
-)
-
 // ErrNotImplemented is returned by the stub lexer until tokenization exists.
 //var ErrNotImplemented = errors.New("lexer not implemented")
 
