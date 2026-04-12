@@ -2,6 +2,7 @@ package interpreter
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/gw-dev101/fractran_plus_plus/internal/ast"
 )
@@ -13,6 +14,10 @@ var ErrNotImplemented = errors.New("interpreter not implemented")
 type Result struct {
 	Steps  int
 	Halted bool
+}
+
+func (r Result) String() string {
+	return "Result{Steps: " + fmt.Sprintf("%d", r.Steps) + ", Halted: " + fmt.Sprintf("%t", r.Halted) + "}"
 }
 
 // Interpreter executes FRACTRAN++ programs.
