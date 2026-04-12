@@ -7,8 +7,8 @@ This repository is scaffolded as a Go project for a FRACTRAN++ lexer, parser, in
 - `internal/ast` - shared syntax tree types
 - `internal/compiler` - compilation stubs
 - `internal/interpreter` - execution stubs
-- `internal/lexer` - tokenization stubs
-- `internal/parser` - parsing stubs
+- `internal/lexer` - tokenization
+- `internal/parser` - parsing
 
 ## Testing
 
@@ -22,4 +22,4 @@ The repository also includes a `make test` shortcut.
 
 ## Status
 
-No FRACTRAN++ behavior is implemented yet. The packages compile as placeholders so tests can be added incrementally.
+The lexer and parser are implemented and tested. The compiler and interpreter are stubs that need to be implemented and tested.
