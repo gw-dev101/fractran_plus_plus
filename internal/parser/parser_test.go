@@ -54,3 +54,65 @@ func TestParse_SingleFraction(t *testing.T) {
 		t.Errorf("expected denominator 2, got %s", fraction.Denominator)
 	}
 }
+
+func TestParse_MultipleFractions(t *testing.T) {
+	program := parseTokens(t, []lexer.Token{
+		{Kind: "Integer", Lexeme: "1"},
+		{Kind: "Slash", Lexeme: "/"},
+		{Kind: "Integer", Lexeme: "2"},
+		{Kind: "Integer", Lexeme: "3"},
+		{Kind: "Slash", Lexeme: "/"},
+		{Kind: "Integer", Lexeme: "4"},
+	})
+
+	if len(program.Statements) != 2 {
+		t.Fatalf("expected 2 statements, got %d", len(program.Statements))
+	}
+
+	fraction1, ok := program.Statements[0].(ast.Fraction)
+	if !ok {
+		t.Fatalf("expected ast.Fraction, got %T", program.Statements[0])
+	}
+	if fraction1.Numerator.String() != "1" {
+		t.Errorf("expected numerator 1, got %s", fraction1.Numerator)
+	}
+	if fraction1.Denominator.String() != "2" {
+		t.Errorf("expected denominator 2, got %s", fraction1.Denominator)
+	}
+
+	fraction2, ok := program.Statements[1].(ast.Fraction)
+	if !ok {
+		t.Fatalf("expected ast.Fraction, got %T", program.Statements[1])
+	}
+	if fraction2.Numerator.String() != "3" {
+		t.Errorf("expected numerator 3, got %s", fraction2.Numerator)
+	}
+	if fraction2.Denominator.String() != "4" {
+		t.Errorf("expected denominator 4, got %s", fraction2.Denominator)
+	}
+}
+
+func TestParse_InvalidTokens(t *testing.T) {
+	expectParseError(t, []lexer.Token{
+		{Kind: "Slash", Lexeme: "/"},
+	})
+	expectParseError(t, []lexer.Token{
+		{Kind: "Integer", Lexeme: "1"},
+	})
+	expectParseError(t, []lexer.Token{
+		{Kind: "Integer", Lexeme: "1"},
+		{Kind: "Slash", Lexeme: "/"},
+	})
+	expectParseError(t, []lexer.Token{
+		{Kind: "Slash", Lexeme: "/"},
+		{Kind: "Integer", Lexeme: "2"},
+	})
+	expectParseError(t, []lexer.Token{
+		{Kind: "Integer", Lexeme: "1"},
+		{Kind: "Integer", Lexeme: "2"},
+	})
+	expectParseError(t, []lexer.Token{
+		{Kind: "Slash", Lexeme: "/"},
+		{Kind: "Slash", Lexeme: "/"},
+	})
+}
