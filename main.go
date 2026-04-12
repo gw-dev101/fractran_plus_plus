@@ -6,6 +6,7 @@ import (
 	"github.com/gw-dev101/fractran_plus_plus/internal/interpreter"
 	"github.com/gw-dev101/fractran_plus_plus/internal/lexer"
 	"github.com/gw-dev101/fractran_plus_plus/internal/parser"
+	"fmt"
 )
 
 func main() {
@@ -28,30 +29,30 @@ func main() {
 		15/2
 		55/1
 	`
-	
+
 	l := lexer.New()
 	tokens, err := l.Tokenize(sampleCode)
 	if err != nil {
 		panic(err)
 	}
-	println("Tokens:", tokens)
+	fmt.Println("Tokens:", tokens)
 	p := parser.New()
 	program, err := p.Parse(tokens)
 	if err != nil {
 		panic(err)
 	}
-	println("Parsed Program:", program)
+	fmt.Println("Parsed Program:", program)
 	c := compiler.New()
 	compiledProgram, err := c.Compile(program)
 	if err != nil {
 		panic(err)
 	}
-	println("Compiled Program:", compiledProgram)
+	fmt.Println("Compiled Program:", compiledProgram)
 	i := interpreter.New()
 	result, err := i.Execute(program)
 	if err != nil {
 		panic(err)
 	}
-	println("Execution Result:", result)
-	println("Program executed successfully")
+	fmt.Println("Execution Result:", result)
+	fmt.Println("Program executed successfully")
 }
