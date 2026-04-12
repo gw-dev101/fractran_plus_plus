@@ -46,7 +46,9 @@ func (l *Lexer) readInteger() string {
 func New() *Lexer {
 	return &Lexer{}
 }
-
+// Tokenize takes a string of FRACTRAN++ source code and returns a slice of tokens or an error if tokenization fails.
+// The lexer takes care of skipping comments(anything that is not part of the grammar) and separators (whitespace and commas).
+// the current implementation only supports pure FRACTRAN programs , but will be extended to support the full FRACTRAN++ syntax in the future.
 func (l *Lexer) Tokenize(input string) ([]Token, error) {
 	l.input = input
 	l.pos = 0
