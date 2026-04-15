@@ -1,9 +1,8 @@
 package parser
 
 import (
-	"math/big"
-
 	"github.com/gw-dev101/fractran_plus_plus/internal/ast"
+	"github.com/gw-dev101/fractran_plus_plus/internal/frac_math"
 	"github.com/gw-dev101/fractran_plus_plus/internal/lexer"
 )
 
@@ -21,11 +20,10 @@ func (p *Parser) Parse(tokens []lexer.Token) (*ast.Program, error) {
 	for i := 0; i < len(tokens); {
 		if tokens[i].Kind == "Integer" {
 			if i+2 < len(tokens) && tokens[i+1].Kind == "Slash" && tokens[i+2].Kind == "Integer" {
-				//parse the numerator and denominator as big.Int
-				numerator := new(big.Int)
-				denominator := new(big.Int)
-				numerator.SetString(tokens[i].Lexeme, 10)
-				denominator.SetString(tokens[i+2].Lexeme, 10)
+				//parse the numerator and denominator as myints and add to the program
+				//using myIntFromString to avoid big.Int overhead
+				numerator := frac_math.MyIntFromString(tokens[i].Lexeme)
+				denominator := frac_math.MyIntFromString(tokens[i+2].Lexeme)
 				program.Statements = append(program.Statements, ast.Fraction{
 					Numerator:   numerator,
 					Denominator: denominator,

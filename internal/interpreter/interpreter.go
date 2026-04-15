@@ -2,9 +2,9 @@ package interpreter
 
 import (
 	"fmt"
-	"math/big"
 
 	"github.com/gw-dev101/fractran_plus_plus/internal/ast"
+	"github.com/gw-dev101/fractran_plus_plus/internal/frac_math"
 )
 
 // Result describes the outcome of interpreting a program.
@@ -25,8 +25,8 @@ func New() *Interpreter {
 	return &Interpreter{}
 }
 
-func (i *Interpreter) Execute(program *ast.Program, input *big.Int) (Result, error) {
-	state := new(big.Int).Set(input)
+func (i *Interpreter) Execute(program *ast.Program, input *frac_math.MyInt) (Result, error) {
+	state := input.Clone()
 	steps := 0
 	for {
 		newState, changed, err := i.Step(program, state)
@@ -41,17 +41,21 @@ func (i *Interpreter) Execute(program *ast.Program, input *big.Int) (Result, err
 	}
 
 }
-func (i *Interpreter) Step(program *ast.Program, state *big.Int) (*big.Int, bool, error) {
+func (i *Interpreter) Step(program *ast.Program, state *frac_math.MyInt) (*frac_math.MyInt, bool, error) {
 	for _, stmt := range program.Statements {
 		switch s := stmt.(type) {
 		case ast.Fraction:
-			var tmp big.Int
-			tmp.Mod(state, s.Denominator)
-			if tmp.Sign() == 0 {
-				newState := new(big.Int).Mul(state, s.Numerator)
-				newState.Div(newState, s.Denominator)
-				return newState, true, nil
+			// Multiply state by the fraction and check if it's an integer
+			numerator := s.Numerator
+			denominator := s.Denominator
+
+			newState := state.Clone()
+			newState.Multiply(numerator)
+			if !newState.Divide(denominator) {
+				continue // not an integer, try next statement
 			}
+			return newState, true, nil
+
 		default:
 			return nil, false, fmt.Errorf("unknown statement type: %T", stmt)
 		}

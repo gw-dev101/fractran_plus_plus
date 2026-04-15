@@ -3,8 +3,8 @@ package main
 //import everything we used to test the compiler, interpreter, lexer, and parser
 import (
 	"fmt"
-	"math/big"
 
+	"github.com/gw-dev101/fractran_plus_plus/internal/frac_math"
 	"github.com/gw-dev101/fractran_plus_plus/internal/interpreter"
 	"github.com/gw-dev101/fractran_plus_plus/internal/lexer"
 	"github.com/gw-dev101/fractran_plus_plus/internal/parser"
@@ -51,7 +51,7 @@ func main() {
 	//	fmt.Println("Compiled Program:", compiledProgram)
 	i := interpreter.New()
 	// primegame
-	n := big.NewInt(2)
+	n := frac_math.FromFactors(map[int]int{2: 1}) // start with 2^1
 
 	for step := 0; step < 100000; step++ {
 		var ok bool
@@ -66,7 +66,7 @@ func main() {
 			break
 		}
 
-		if isPowerOfTwo(n) {
+		if n.IsPowerOfTwo() {
 			fmt.Println("prime:", exponent(n))
 		}
 	}
@@ -84,34 +84,11 @@ func main() {
 	}
 	fmt.Println("Program executed successfully")
 }
-func isPowerOfTwo(n *big.Int) bool {
-	if n.Sign() <= 0 {
-		return false
+
+// Helper function to get the exponent of 2 in a MyInt, assuming it's a power of two
+func exponent(n *frac_math.MyInt) int {
+	if exp, ok := n.Factors()[2]; ok {
+		return exp
 	}
-
-	tmp := new(big.Int).Set(n)
-	two := big.NewInt(2)
-	zero := big.NewInt(0)
-
-	for {
-		mod := new(big.Int).Mod(tmp, two)
-		if mod.Cmp(zero) != 0 {
-			break
-		}
-		tmp.Div(tmp, two)
-	}
-
-	return tmp.Cmp(big.NewInt(1)) == 0
-}
-
-func exponent(n *big.Int) int {
-	tmp := new(big.Int).Set(n)
-	two := big.NewInt(2)
-
-	exp := 0
-	for tmp.Cmp(big.NewInt(1)) > 0 {
-		tmp.Div(tmp, two)
-		exp++
-	}
-	return exp
+	return 0
 }

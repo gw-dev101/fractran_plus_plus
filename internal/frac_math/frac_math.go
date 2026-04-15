@@ -1,4 +1,6 @@
-package fracmath
+package frac_math
+
+import "math/big"
 
 // MyInt represents a number as a product of primes:
 // n = p_1^e_1 * p_2^e_2 * ... * p_k^e_k
@@ -23,6 +25,14 @@ func FromFactors(f map[int]int) *MyInt {
 		}
 	}
 	return m
+}
+func (m *MyInt) Factors() map[int]int {
+	// return a copy to prevent external mutation
+	copy := make(map[int]int)
+	for k, v := range m.factors {
+		copy[k] = v
+	}
+	return copy
 }
 
 // Clone returns a deep copy
@@ -55,6 +65,17 @@ func (m *MyInt) Power(exp int) {
 		m.factors[prime] = e * exp
 	}
 }
+func (m *MyInt) IsPowerOfTwo() bool {
+	if m.IsOne() {
+		return false
+	}
+	if len(m.factors) == 1 { // only one prime factor and it must be 2
+		for prime := range m.factors {
+			return prime == 2
+		}
+	}
+	return false
+}
 
 // CanDivide checks if m is divisible by n
 func (m *MyInt) CanDivide(n *MyInt) bool {
@@ -67,7 +88,6 @@ func (m *MyInt) CanDivide(n *MyInt) bool {
 }
 
 // Divide: m /= n, returns false if not divisible
-// This is ATOMIC: no mutation if division fails
 func (m *MyInt) Divide(n *MyInt) bool {
 	if !m.CanDivide(n) {
 		return false
@@ -79,28 +99,6 @@ func (m *MyInt) Divide(n *MyInt) bool {
 			delete(m.factors, prime)
 		}
 	}
-	return true
-}
-
-// ApplyDelta applies a FRACTRAN-style delta:
-// negative exponents = division requirement
-// positive exponents = multiplication
-func (m *MyInt) ApplyDelta(delta map[int]int) bool {
-	// check feasibility (for negative parts)
-	for prime, change := range delta {
-		if change < 0 && m.factors[prime] < -change {
-			return false
-		}
-	}
-
-	// apply all changes
-	for prime, change := range delta {
-		m.factors[prime] += change
-		if m.factors[prime] == 0 {
-			delete(m.factors, prime)
-		}
-	}
-
 	return true
 }
 
@@ -121,18 +119,24 @@ func (m *MyInt) Equals(n *MyInt) bool {
 func (m *MyInt) IsOne() bool {
 	return len(m.factors) == 0
 }
+func (m *MyInt) Set(other *MyInt) {
+	m.factors = make(map[int]int)
+	for k, v := range other.factors {
+		m.factors[k] = v
+	}
+}
 
-// String returns a debug representation
+// String returns a human-readable representation of the number
 func (m *MyInt) String() string {
-	if len(m.factors) == 0 {
-		return "1"
+	//create a big.Int and populate it by multiplying the prime factors
+	result := big.NewInt(1)
+	for prime, exp := range m.factors {
+		primeBig := big.NewInt(int64(prime))
+		primeBig.Exp(primeBig, big.NewInt(int64(exp)), nil)
+		result.Mul(result, primeBig)
 	}
+	return result.String()
 
-	s := ""
-	for p, e := range m.factors {
-		s += formatFactor(p, e) + " "
-	}
-	return s
 }
 
 func formatFactor(p, e int) string {
@@ -169,4 +173,51 @@ func itoa(x int) string {
 	}
 
 	return string(buf[i:])
+}
+
+//func (m *MyInt) fromBigInt(n *big.Int) {
+
+func MyIntFromBigInt(n *big.Int) *MyInt {
+	m := New()
+	// factor n into primes and populate m.factors
+	// This is a naive implementation and can be optimized with better factoring algorithms
+	nCopy := new(big.Int).Set(n)
+	for p := 2; nCopy.Cmp(big.NewInt(1)) > 0; p++ {
+		count := 0
+		for {
+			mod := new(big.Int)
+			mod.Mod(nCopy, big.NewInt(int64(p)))
+			if mod.Cmp(big.NewInt(0)) != 0 {
+				break
+			}
+			count++
+			nCopy.Div(nCopy, big.NewInt(int64(p)))
+		}
+		if count > 0 {
+			m.factors[p] = count
+		}
+	}
+	return m
+}
+
+// string to bigint to myint
+func MyIntFromString(s string) *MyInt {
+	n := new(big.Int)
+	n.SetString(s, 10)
+	return MyIntFromBigInt(n)
+}
+
+func FromInt(n int) *MyInt {
+	tab := make(map[int]int)
+	for p := 2; n > 1; p++ {
+		count := 0
+		for n%p == 0 {
+			count++
+			n /= p
+		}
+		if count > 0 {
+			tab[p] = count
+		}
+	}
+	return FromFactors(tab)
 }

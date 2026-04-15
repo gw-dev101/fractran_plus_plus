@@ -1,6 +1,7 @@
-package fracmath
+package frac_math
 
 import "testing"
+
 func TestMultiplyCommutative(t *testing.T) {
 	a := FromFactors(map[int]int{2: 1, 3: 2})
 	b := FromFactors(map[int]int{3: 1, 5: 1})
@@ -35,20 +36,21 @@ func TestMultiplyDoesntMutateArgument(t *testing.T) {
 
 	if !b.Equals(bcopy) {
 		t.Fatalf("expected no mutation of argument: got %s, expected %s", b.String(), bcopy.String())
-	}}
+	}
+}
 
 func TestDivideCancel(t *testing.T) {
 	a := FromFactors(map[int]int{2: 3, 3: 2})
 	b := FromFactors(map[int]int{2: 1, 3: 1})
-// (a multiply b) / b should equal a
-c := a.Clone()
-c.Multiply(b)
-if !c.Divide(b) {
-	t.Fatalf("expected division to succeed")
-}
-if !c.Equals(a) {
-	t.Fatalf("expected (a * b) / b to equal a: got %s, expected %s", c.String(), a.String())
-}
+	// (a multiply b) / b should equal a
+	c := a.Clone()
+	c.Multiply(b)
+	if !c.Divide(b) {
+		t.Fatalf("expected division to succeed")
+	}
+	if !c.Equals(a) {
+		t.Fatalf("expected (a * b) / b to equal a: got %s, expected %s", c.String(), a.String())
+	}
 }
 
 func TestDivideNotDivisible(t *testing.T) {
@@ -102,3 +104,27 @@ func TestPowerOneBase(t *testing.T) {
 		t.Fatalf("expected power of one to yield one: got %s, expected %s", a.String(), expected.String())
 	}
 }
+func TestPowerZeroBase(t *testing.T) {
+	a := FromFactors(map[int]int{2: -1})
+	a.Power(5)
+
+	expected := FromFactors(map[int]int{2: -5})
+	if !a.Equals(expected) {
+		t.Fatalf("expected power of zero to yield zero: got %s, expected %s", a.String(), expected.String())
+	}
+}
+
+
+
+
+// test for string conversion and parsing
+func TestStringConversion(t *testing.T) {
+	a := FromFactors(map[int]int{2: 3, 3: 2})
+	s := a.String()
+	b := MyIntFromString(s)
+
+	if !a.Equals(b) {
+		t.Fatalf("expected string conversion to be consistent: got %s, expected %s", b.String(), a.String())
+	}
+}
+//check
